@@ -1,0 +1,1069 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Commission Dashboard</title>
+
+<link rel="manifest" href="manifest.json">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#eef3ff;
+    font-family:'Segoe UI',sans-serif;
+    padding:24px;
+    color:#1a1a1a;
+    transition:0.3s;
+
+
+}
+
+.container{
+    max-width:1400px;
+    margin:auto;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:24px;
+    flex-wrap:wrap;
+    gap:12px;
+}
+
+.title{
+    font-size:42px;
+    font-weight:800;
+}
+
+.subtitle{
+    color:#666;
+    margin-top:6px;
+}
+
+#lastUpdate{
+    background:white;
+    padding:12px 18px;
+    border-radius:16px;
+    font-weight:600;
+    box-shadow:0 5px 20px rgba(0,0,0,0.05);
+}
+
+
+.kpi-grid{
+    display:grid;
+    grid-template-columns:
+    repeat(auto-fit,minmax(240px,1fr));
+
+    gap:28px;
+
+    margin-top:24px;
+    margin-bottom:32px;
+}
+
+
+.kpi-card{
+    background:white;
+    border-radius:24px;
+    padding:24px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.06);
+}
+
+.kpi-title{
+    color:#666;
+    margin-bottom:10px;
+}
+
+.kpi-value{
+    font-size:32px;
+    font-weight:800;
+}
+
+.layout{
+    display:grid;
+    grid-template-columns:380px 1fr;
+    gap:24px;
+    align-items:start;
+}
+
+.card{
+    background:white;
+    border-radius:28px;
+    padding:24px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.06);
+}
+
+label{
+    display:block;
+    margin-top:16px;
+    margin-bottom:8px;
+    font-weight:600;
+}
+
+input{
+    width:100%;
+    border:none;
+    background:#f7f9ff;
+    border-radius:18px;
+    padding:16px;
+    font-size:16px;
+}
+
+button{
+    width:100%;
+    border:none;
+    border-radius:18px;
+    padding:18px;
+    margin-top:18px;
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.primary-btn{
+    background:#2463ff;
+    color:white;
+}
+
+.secondary-btn{
+    background:#eef2fa;
+}
+
+.result{
+    background:#f8fbff;
+    padding:14px 18px;
+    border-radius:16px;
+    margin-bottom:12px;
+    font-weight:600;
+}
+
+.result:empty{
+    display:none;
+}
+
+
+.green{
+    color:#0f9f4f;
+}
+
+.red{
+    color:#ff3d3d;
+}
+
+.big{
+    font-size:32px;
+    font-weight:800;
+}
+
+.bottom-grid{
+    display:grid;
+    grid-template-columns:1fr 2fr;
+    gap:24px;
+    margin-top:24px;
+}
+
+.chart-box{
+    height:450px;
+}
+
+.history-box{
+    height:450px;
+    overflow-y:auto;
+}
+
+#salesChart{
+    width:100% !important;
+    height:340px !important;
+}
+
+.history-item{
+    padding:18px;
+    border-bottom:1px solid #edf1f7;
+    line-height:1.8;
+}
+
+.up{
+    color:#0f9f4f;
+}
+
+.down{
+    color:#ff3d3d;
+}
+
+hr{
+    margin:18px 0;
+    border:none;
+    border-top:1px solid #e8edf5;
+    display:none;
+}  
+body.dark-mode{
+    background:#111827;
+    color:white;
+}
+
+.dark-mode .card,
+.dark-mode .kpi-card,
+.dark-mode #lastUpdate{
+    background:#1f2937;
+    color:white;
+}
+
+.dark-mode input{
+    background:#374151;
+    color:white;
+}
+
+.dark-mode .result{
+    background:#2c3b52;
+    color:white;
+}
+
+.dark-mode .subtitle,
+.dark-mode .kpi-title{
+    color:#cbd5e1;
+}
+
+.dark-mode hr{
+    border-top:1px solid #374151;
+}
+
+.dark-mode .secondary-btn{
+    background:#374151;
+    color:white;
+}
+
+.topbar .secondary-btn{
+    width:auto;
+    padding:12px 20px;
+    margin-top:0;
+}
+
+@media(max-width:1100px){
+
+    .layout{
+        grid-template-columns:1fr;
+    }
+
+    .bottom-grid{
+        grid-template-columns:1fr;
+    }
+
+  
+     
+     .kpi-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:24px;
+    margin-top:24px;
+    margin-bottom:24px;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="topbar">
+
+<div>
+
+<div class="title">
+Commission Dashboard
+</div>
+
+<div class="subtitle">
+ระบบคำนวณค่าคอมมิชชั่น
+</div>
+
+</div>
+
+<div id="lastUpdate">
+ยังไม่มีข้อมูล
+</div>
+
+<button class="secondary-btn"
+onclick="toggleDarkMode()">
+🌙 Dark Mode
+
+<button class="secondary-btn"
+onclick="clearHistory()">
+ล้างประวัติย้อนหลัง
+</button>
+
+
+
+</button>
+
+</div>
+
+<div class="kpi-grid">
+
+<div class="kpi-card">
+<div class="kpi-title">ยอดขายรวม</div>
+<div class="kpi-value" id="kpiSales">-</div>
+</div>
+
+<div class="kpi-card">
+<div class="kpi-title">Achievement</div>
+<div class="kpi-value" id="kpiAchievement">-</div>
+</div>
+
+<div class="kpi-card">
+<div class="kpi-title">สุทธิรวม</div>
+<div class="kpi-value" id="kpiIncome">-</div>
+</div>
+
+<div class="kpi-card">
+<div class="kpi-title">เปรียบเทียบ</div>
+<div class="kpi-value" id="kpiCompare">-</div>
+</div>
+
+</div>
+
+<div class="layout">
+
+<div class="card">
+
+<h2>ข้อมูลยอดขาย</h2>
+
+<label>ชื่อพนักงาน</label>
+<input type="text" id="employeeName">
+
+<label>เลือกเดือน</label>
+<input type="month"
+id="selectedMonth"
+onchange="loadMonthData()">
+
+
+<label>Target เดือน</label>
+<input type="number" id="target">
+
+<label>Mac</label>
+<input type="number" id="mac">
+
+<label>iPhone</label>
+<input type="number" id="iphone">
+
+<label>iPad</label>
+<input type="number" id="ipad">
+
+<label>Notebook</label>
+<input type="number" id="notebook">
+
+<label>DIY</label>
+<input type="number" id="diy">
+
+<h2 style="margin-top:24px;">
+หมวดประกัน
+</h2>
+
+<label>7Care iPhone (>30k)</label>
+<input type="number" id="care200">
+
+<label>7Care iPhone (≤30k)</label>
+<input type="number" id="care100">
+
+<label>7Care iPad</label>
+<input type="number" id="careipad">
+
+<label>Social Care+</label>
+<input type="number" id="socialcare">
+
+<button class="primary-btn" onclick="calculateCommission()">
+คำนวณค่าคอม
+</button>
+
+<button class="secondary-btn" onclick="saveHistory()">
+บันทึกย้อนหลัง
+</button>
+
+<button class="primary-btn" onclick="window.print()">
+Export PDF
+</button>
+
+</div>
+
+<div class="card">
+
+<h2>ผลลัพธ์</h2>
+
+<div class="result" id="showName"></div>
+<div class="result" id="achievement"></div>
+<div class="result" id="step"></div>
+<div class="result" id="compareResult"></div>
+
+<hr>
+
+<div class="result" id="piaCommission"></div>
+<div class="result red" id="bmPia"></div>
+<div class="result green" id="netPia"></div>
+
+<hr>
+
+<div class="result" id="insuranceCommission"></div>
+<div class="result red" id="bmInsurance"></div>
+<div class="result green" id="netInsurance"></div>
+
+<hr>
+
+<div class="result big green" id="finalIncome"></div>
+
+</div>
+
+</div>
+
+<div class="bottom-grid">
+
+<div class="card chart-box">
+
+<h2>กราฟยอดสุทธิ</h2>
+
+<canvas id="salesChart"></canvas>
+
+</div>
+
+<div class="card history-box">
+
+<h2>ประวัติย้อนหลัง</h2>
+
+<div id="history"></div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let chart;
+
+function getRates(achievement){
+
+    if(achievement >= 105){
+        return { mac:0.009, normal:0.007 };
+    }
+
+    if(achievement >= 98){
+        return { mac:0.008, normal:0.0055 };
+    }
+
+    if(achievement >= 90){
+        return { mac:0.007, normal:0.005 };
+    }
+
+    return { mac:0.0041, normal:0.0031 };
+
+}
+
+function formatNumber(number){
+    return Number(number).toLocaleString('en-US');
+}
+
+function calculateCommission(){
+
+    let employeeName =
+        document.getElementById("employeeName").value;
+
+    let target =
+        Number(document.getElementById("target").value);
+
+    let mac =
+        Number(document.getElementById("mac").value);
+
+    let iphone =
+        Number(document.getElementById("iphone").value);
+
+    let ipad =
+        Number(document.getElementById("ipad").value);
+
+    let notebook =
+        Number(document.getElementById("notebook").value);
+
+    let diy =
+        Number(document.getElementById("diy").value);
+
+    let totalSales =
+        mac + iphone + ipad + notebook + diy;
+
+    let achievement =
+    target > 0
+    ? (totalSales / target) * 100
+    : 0;
+
+    let rates =
+        getRates(achievement);
+
+    let piaCommission =
+        (mac * rates.mac) +
+        (iphone * rates.normal) +
+        (ipad * rates.normal) +
+        (notebook * rates.normal) +
+        (diy * rates.normal);
+
+    let bmPia = piaCommission * 0.25;
+
+    let netPia = piaCommission - bmPia;
+
+    let care200 =
+        Number(document.getElementById("care200").value);
+
+    let care100 =
+        Number(document.getElementById("care100").value);
+
+    let careipad =
+        Number(document.getElementById("careipad").value);
+
+    let socialcare =
+        Number(document.getElementById("socialcare").value);
+
+    let insuranceCommission =
+        (care200 * 200) +
+        (care100 * 100) +
+        (careipad * 400) +
+        (socialcare * 200);
+
+    let bmInsurance =
+        insuranceCommission * 0.40;
+
+    let netInsurance =
+        insuranceCommission - bmInsurance;
+
+    let finalIncome =
+        netPia + netInsurance;
+
+    document.getElementById("showName")
+    .innerHTML =
+    "พนักงาน: " + employeeName;
+
+    document.getElementById("achievement")
+    .innerHTML =
+    "Achievement: " +
+    achievement.toFixed(2) + "%";
+
+    document.getElementById("step")
+    .innerHTML =
+    achievement >= 105
+    ? "105% Up"
+    : achievement >= 98
+    ? "98% - 104.99%"
+    : achievement >= 90
+    ? "90% - 97.99%"
+    : "70% - 89.99%";
+
+    document.getElementById("piaCommission")
+    .innerHTML =
+    "Commission PIA: " +
+    formatNumber(piaCommission.toFixed(0)) +
+    " บาท";
+
+    document.getElementById("bmPia")
+    .innerHTML =
+    "หัก BM 25%: -" +
+    formatNumber(bmPia.toFixed(0)) +
+    " บาท";
+
+    document.getElementById("netPia")
+    .innerHTML =
+    "สุทธิ PIA: " +
+    formatNumber(netPia.toFixed(0)) +
+    " บาท";
+
+    document.getElementById("insuranceCommission")
+    .innerHTML =
+    "Commission ประกัน: " +
+    formatNumber(insuranceCommission.toFixed(0)) +
+    " บาท";
+
+    document.getElementById("bmInsurance")
+    .innerHTML =
+    "หัก BM 40%: -" +
+    formatNumber(bmInsurance.toFixed(0)) +
+    " บาท";
+
+    document.getElementById("netInsurance")
+    .innerHTML =
+    "สุทธิประกัน: " +
+    formatNumber(netInsurance.toFixed(0)) +
+    " บาท";
+
+    document.getElementById("finalIncome")
+    .innerHTML =
+    "สุทธิรวม: " +
+    formatNumber(finalIncome.toFixed(0)) +
+    " บาท";
+
+    document.getElementById("kpiSales")
+    .innerHTML =
+    formatNumber(totalSales);
+
+    document.getElementById("kpiAchievement")
+    .innerHTML =
+    achievement.toFixed(2) + "%";
+
+    document.getElementById("kpiIncome")
+    .innerHTML =
+    formatNumber(finalIncome.toFixed(0)) +
+    " บาท";
+
+    let now = new Date();
+
+    document.getElementById("lastUpdate")
+    .innerHTML =
+    now.toLocaleDateString("th-TH") +
+    " " +
+    now.toLocaleTimeString("th-TH");
+
+    document.querySelectorAll("hr")
+    .forEach(hr => {
+        hr.style.display = "block";
+    });
+
+    compareWithLastMonth(
+        finalIncome,
+        document.getElementById("selectedMonth").value
+    );
+
+}
+
+function saveHistory(){
+
+    let employee =
+        document.getElementById("employeeName").value;
+
+    let month =
+        document.getElementById("selectedMonth").value;
+
+    if(!month){
+        alert("กรุณาเลือกเดือน");
+        return;
+    }
+
+    let achievement =
+        document.getElementById("achievement")
+        .innerHTML;
+
+    let income =
+        document.getElementById("finalIncome")
+        .innerHTML;
+
+    let data =
+        JSON.parse(
+            localStorage.getItem("commissionHistory")
+        ) || [];
+
+    data = data.filter(item => item.month !== month);
+
+    data.push({
+
+        employee,
+        month,
+        achievement,
+        income,
+
+        totalSales:
+            document.getElementById("kpiSales")
+            .innerHTML,
+
+        piaCommission:
+            document.getElementById("piaCommission")
+            .innerHTML,
+
+        bmPia:
+            document.getElementById("bmPia")
+            .innerHTML,
+
+        netPia:
+            document.getElementById("netPia")
+            .innerHTML,
+
+        insuranceCommission:
+            document.getElementById("insuranceCommission")
+            .innerHTML,
+
+        bmInsurance:
+            document.getElementById("bmInsurance")
+            .innerHTML,
+
+        netInsurance:
+            document.getElementById("netInsurance")
+            .innerHTML,
+
+        step:
+            document.getElementById("step")
+            .innerHTML,
+
+        compare:
+            document.getElementById("compareResult")
+            .innerHTML
+
+    });
+
+    localStorage.setItem(
+        "commissionHistory",
+        JSON.stringify(data)
+    );
+
+    loadHistory();
+    loadChart();
+
+    alert("บันทึกย้อนหลังเรียบร้อย");
+
+}
+
+function clearHistory(){
+
+    let confirmDelete =
+        confirm("ต้องการล้างประวัติทั้งหมดหรือไม่?");
+
+    if(!confirmDelete){
+        return;
+    }
+
+    localStorage.removeItem(
+        "commissionHistory"
+    );
+
+    loadHistory();
+    loadChart();
+
+    location.reload();
+
+}
+
+function loadHistory(){
+
+    let history =
+        document.getElementById("history");
+
+    let data =
+        JSON.parse(
+            localStorage.getItem("commissionHistory")
+        ) || [];
+
+    history.innerHTML = "";
+
+    data
+    .slice()
+    .reverse()
+    .forEach(item => {
+
+        history.innerHTML += `
+
+        <div class="history-item">
+
+        <b>${item.employee || "-"}</b><br>
+
+        ${item.month || "-"}<br>
+
+        ${item.achievement || "-"}<br>
+
+        ${item.income || "-"}
+
+        </div>
+
+        `;
+
+    });
+
+}
+
+function loadChart(){
+
+    let data =
+        JSON.parse(
+            localStorage.getItem("commissionHistory")
+        ) || [];
+
+    let labels =
+        data.map(item => item.month);
+
+    let totals =
+        data.map(item => {
+
+            let number =
+                (item.income || "0")
+                .replace(/[^0-9]/g,'');
+
+            return Number(number);
+
+        });
+
+    let ctx =
+        document.getElementById("salesChart");
+
+    if(chart){
+        chart.destroy();
+    }
+
+    chart = new Chart(ctx, {
+
+        type:'line',
+
+        data:{
+            labels:labels,
+            datasets:[{
+                label:'ยอดสุทธิ',
+                data:totals,
+                borderWidth:3,
+                tension:0.3
+            }]
+        },
+
+        options:{
+            responsive:true,
+            maintainAspectRatio:false
+        }
+
+    });
+
+}
+
+function compareWithLastMonth(current, currentMonth){
+
+    let data =
+        JSON.parse(
+            localStorage.getItem("commissionHistory")
+        ) || [];
+
+    if(data.length <= 1){
+
+        document.getElementById("compareResult")
+        .innerHTML = "→ 0%";
+
+        document.getElementById("kpiCompare")
+        .innerHTML = "→ 0%";
+
+        return;
+
+    }
+
+    let sorted =
+        data.sort((a,b)=>
+            new Date(a.month) - new Date(b.month)
+        );
+
+    let currentIndex =
+        sorted.findIndex(
+            item => item.month === currentMonth
+        );
+
+    if(currentIndex <= 0){
+
+        document.getElementById("compareResult")
+        .innerHTML = "→ 0%";
+
+        document.getElementById("kpiCompare")
+        .innerHTML = "→ 0%";
+
+        return;
+
+    }
+
+    let previous =
+        sorted[currentIndex - 1];
+
+    let lastIncome =
+        Number(
+            (previous.income || "0")
+            .replace(/[^0-9]/g,'')
+        );
+
+    let diff =
+        current - lastIncome;
+
+    let percent =
+    lastIncome > 0
+    ? (diff / lastIncome) * 100
+    : 0;
+
+    let text =
+    diff > 0
+    ? `↑ ${percent.toFixed(2)}%`
+    : diff < 0
+    ? `↓ ${Math.abs(percent).toFixed(2)}%`
+    : `→ 0%`;
+
+    document.getElementById("compareResult")
+    .innerHTML = text;
+
+    document.getElementById("kpiCompare")
+    .innerHTML = text;
+
+}
+
+function toggleDarkMode(){
+
+    document.body.classList.toggle(
+        "dark-mode"
+    );
+
+}
+
+function loadMonthData(){
+
+    let month =
+        document.getElementById("selectedMonth")
+        .value;
+
+    let data =
+        JSON.parse(
+            localStorage.getItem("commissionHistory")
+        ) || [];
+
+    let found =
+        data.find(item => item.month === month);
+
+    if(!found){
+
+        document.getElementById("showName")
+        .innerHTML = "";
+
+        document.getElementById("achievement")
+        .innerHTML = "";
+
+        document.getElementById("step")
+        .innerHTML = "";
+
+        document.getElementById("compareResult")
+        .innerHTML = "";
+
+        document.getElementById("piaCommission")
+        .innerHTML = "";
+
+        document.getElementById("bmPia")
+        .innerHTML = "";
+
+        document.getElementById("netPia")
+        .innerHTML = "";
+
+        document.getElementById("insuranceCommission")
+        .innerHTML = "";
+
+        document.getElementById("bmInsurance")
+        .innerHTML = "";
+
+        document.getElementById("netInsurance")
+        .innerHTML = "";
+
+        document.getElementById("finalIncome")
+        .innerHTML = "";
+
+        document.getElementById("kpiSales")
+        .innerHTML = "-";
+
+        document.getElementById("kpiAchievement")
+        .innerHTML = "-";
+
+        document.getElementById("kpiIncome")
+        .innerHTML = "-";
+
+        document.getElementById("kpiCompare")
+        .innerHTML = "-";
+
+        return;
+
+    }
+
+    document.getElementById("showName")
+    .innerHTML =
+    "พนักงาน: " + found.employee;
+
+    document.getElementById("achievement")
+    .innerHTML =
+    found.achievement || "";
+
+    document.getElementById("step")
+    .innerHTML =
+    found.step || "";
+
+    document.getElementById("compareResult")
+    .innerHTML =
+    found.compare || "";
+
+    document.getElementById("piaCommission")
+    .innerHTML =
+    found.piaCommission || "";
+
+    document.getElementById("bmPia")
+    .innerHTML =
+    found.bmPia || "";
+
+    document.getElementById("netPia")
+    .innerHTML =
+    found.netPia || "";
+
+    document.getElementById("insuranceCommission")
+    .innerHTML =
+    found.insuranceCommission || "";
+
+    document.getElementById("bmInsurance")
+    .innerHTML =
+    found.bmInsurance || "";
+
+    document.getElementById("netInsurance")
+    .innerHTML =
+    found.netInsurance || "";
+
+    document.getElementById("finalIncome")
+    .innerHTML =
+    found.income || "";
+
+    document.getElementById("kpiSales")
+    .innerHTML =
+    found.totalSales || "-";
+
+    document.getElementById("kpiAchievement")
+    .innerHTML =
+    (found.achievement || "")
+    .replace(
+        "Achievement: ",
+        ""
+    );
+
+    document.getElementById("kpiIncome")
+    .innerHTML =
+    (found.income || "")
+    .replace(
+        "สุทธิรวม: ",
+        ""
+    );
+
+    let currentIncome =
+    Number(
+        (found.income || "0")
+        .replace(/[^0-9]/g,'')
+    );
+
+    compareWithLastMonth(
+        currentIncome,
+        found.month
+    );
+
+}
+
+loadHistory();
+loadChart();
+
+</script>
+
+
+</body>
+</html>
