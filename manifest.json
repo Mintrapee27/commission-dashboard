@@ -1,0 +1,21 @@
+{
+  "name": "Commission Dashboard",
+  "short_name": "Commission",
+  "start_url": "/commission-dashboard/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#2463ff",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
