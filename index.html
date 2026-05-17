@@ -1094,6 +1094,11 @@ loadChart();
 
 </script>
 
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/commission-dashboard/service-worker.js')
+}
+</script>    
 
 </body>
 </html>
